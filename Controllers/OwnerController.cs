@@ -95,7 +95,7 @@ namespace ReviewAPI.Controllers
 
         [HttpPost]
         [ProducesResponseType(201)]
-        public IActionResult CreateOwner([FromQuery] int countryId,[FromBody] OwnerDto ownerCreate)
+        public IActionResult CreateOwner([FromQuery] int countryId, [FromBody] OwnerDto ownerCreate)
         {
             if (ownerCreate == null)
             {
@@ -127,6 +127,63 @@ namespace ReviewAPI.Controllers
 
             return Ok("Sucessfully Created...");
 
+        }
+
+        [HttpPut("{ownerId:int}")]
+        [ProducesResponseType(204)]
+        public IActionResult UpdateOwner(int ownerId, [FromBody] OwnerDto updateOwner)
+        {
+            if (updateOwner == null)
+            {
+                return BadRequest(ModelState);
+            }
+            if (ownerId != updateOwner.Id)
+            {
+                return BadRequest(ModelState);
+            }
+            if (_ownerRepository.OwnerExists(ownerId))
+            {
+                ModelState.AddModelError("", "Owner Did not Exits..");
+                return StatusCode(422, ModelState);
+            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var ownerMap = _mapper.Map<Owner>(updateOwner);
+
+            if (!_ownerRepository.UpdateOwner(ownerMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating...");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
+
+        [HttpDelete("{ownerId:int}")]
+        [ProducesResponseType(204)]
+
+        public IActionResult DeleteOwner(int ownerId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            if (_ownerRepository.OwnerExists(ownerId))
+            {
+                ModelState.AddModelError("", "Owner did not exits...");
+                return StatusCode(422, ModelState);
+            }
+
+            var deleteOwner = _ownerRepository.GetOwner(ownerId);
+
+            if (!_ownerRepository.DeleteOwner(deleteOwner))
+            {
+                ModelState.AddModelError("", "something went wrong while deleting...");
+                return StatusCode(500, ModelState);
+            }
+            return NoContent();
         }
     }
 }
