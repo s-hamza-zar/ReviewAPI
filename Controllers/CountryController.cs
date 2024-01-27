@@ -121,5 +121,66 @@ namespace ReviewAPI.Controllers
 
             return Ok("Country Created sucessfully");
         }
+
+
+        [HttpPut("{countryId:int}")]
+        [ProducesResponseType(204)]
+        public IActionResult UpdateCountry(int countryId, [FromBody] CountryDto updateCountry)
+        {
+            if (updateCountry == null)
+            {
+                return BadRequest(ModelState);
+            }
+            if (countryId != updateCountry.Id)
+            {
+                return BadRequest(ModelState);
+
+            }
+            if (!_countryRepository.CountryExits(countryId))
+            {
+                return NotFound();
+            }
+            if (ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var countryMap = _mapper.Map<Country>(updateCountry);
+
+            if (!_countryRepository.UpdateCountry(countryMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating...");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
+
+        [HttpDelete("{countryId:int}")]
+        [ProducesResponseType(204)]
+        public IActionResult DeleteCountry(int countryId)
+        {
+            if (_countryRepository.CountryExits(countryId))
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var countryDelete = _countryRepository.GetCountry(countryId);
+
+            if (_countryRepository.DeleteCountry(countryDelete))
+            {
+                ModelState.AddModelError("", "something went wrong while deleting...");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+
+
+
+        }
     }
 }

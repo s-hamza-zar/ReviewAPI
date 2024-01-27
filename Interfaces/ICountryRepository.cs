@@ -15,6 +15,9 @@ namespace ReviewAPI.Interfaces
         bool CreateCountry(Country country);
 
         bool Save();
+        bool DeleteCountry(Country country);
+
+        bool UpdateCountry(Country country);
 
         bool CountryExits(int countryId);
     }
