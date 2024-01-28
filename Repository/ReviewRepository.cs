@@ -46,5 +46,23 @@ namespace ReviewAPI.Repository
 
             return saved > 0 ? true : false;
         }
+
+        public bool UpdateReview(Review review)
+        {
+            _dbContext.Update(review);
+            return Save();
+        }
+
+        public bool DeleteReview(Review review)
+        {
+            _dbContext.Remove(review);
+            return Save();
+        }
+
+        public bool DeleteReviews(List<Review> reviews)
+        {
+            _dbContext.RemoveRange(reviews);
+            return Save();
+        }
     }
 }
